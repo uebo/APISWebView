@@ -71,21 +71,21 @@
     //通知＆バッジを消す
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 0];
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    
     NSDictionary *aps = [userInfo objectForKey:@"aps"];
     if (!aps) {
         return;
     }
-    //プッシュ通知メッセージを表示
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"AlertTitle", nil)
-                                                    message:aps[@"alert"]
-                                                   delegate:nil
-                                          cancelButtonTitle:@"OK"
-                                          otherButtonTitles:nil];
-    [alert show];
-    
+    if ([[aps objectForKey:@"alert"] objectForKey:@"body"] != nil) {
+        //プッシュ通知メッセージを表示
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"お知らせ"
+                                                        message:[[aps objectForKey:@"alert"] objectForKey:@"body"]
+                                                       delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        [alert show];
+    }
     //APIS PUSH 開封通知を送信（userInfoのpushIdキーにトークンが入っている）
-    NSString* pushId = (NSString*) [userInfo objectForKey:@"pushId"];
+    NSString* pushId = [userInfo objectForKey:@"pushId"];
     if (pushId != nil) {
         APISPushAPIClient *api = [[APISSession sharedSession] createPushAPIClient];
         [api notifyMessageOpenedWithPushId:[pushId integerValue]];
